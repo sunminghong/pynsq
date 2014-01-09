@@ -13,10 +13,12 @@ class Client(object):
 
     def _on_connection_identify_response(self, conn, data, **kwargs):
         logging.info('[%s:%s] IDENTIFY received %r' % (conn.id, self.name, data))
-        if self.tls_v1 and not data.get('tls_v1'):
+        #if self.tls_v1 and not data.get('tls_v1'):
+        if not data.get('tls_v1'):
             logging.warning('[%s:%s] tls_v1 requested but disabled, could not negotiate feature',
                             conn.id, self.name)
-        if self.snappy and not data.get('snappy'):
+        #if self.snappy and not data.get('snappy'):
+        if not data.get('snappy'):
             logging.warning('[%s:%s] snappy requested but disabled, could not negotiate feature',
                             conn.id, self.name)
 

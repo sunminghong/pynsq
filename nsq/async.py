@@ -80,9 +80,9 @@ class AsyncConn(EventedMixin):
         percentage of the message traffic. (requires nsqd 0.2.25+)
 
     """
-    def __init__(self, host, port, timeout=1.0, heartbeat_interval=30, requeue_delay=90,
+    def __init__(self, host, port,timeout=1.0, heartbeat_interval=30, requeue_delay=90,
                  tls_v1=False, tls_options=None, snappy=False,
-                 output_buffer_size=16 * 1024, output_buffer_timeout=250, sample_rate=0):
+                 output_buffer_size=16 * 1024, output_buffer_timeout=250, sample_rate=0, authentication_password=""):
         assert isinstance(host, (str, unicode))
         assert isinstance(port, int)
         assert isinstance(timeout, float)
@@ -112,12 +112,14 @@ class AsyncConn(EventedMixin):
         self.snappy = snappy
         self.hostname = socket.gethostname()
         self.short_hostname = self.hostname.split('.')[0]
-        self.heartbeat_interval = heartbeat_interval
+        self.heartbeat_interval = heartbeat_interval * 1000
         self.requeue_delay = requeue_delay
 
         self.output_buffer_size = output_buffer_size
         self.output_buffer_timeout = output_buffer_timeout
         self.sample_rate = sample_rate
+
+        self.authentication_password = authentication_password
 
         super(AsyncConn, self).__init__()
 
@@ -241,7 +243,9 @@ class AsyncConn(EventedMixin):
             'snappy': self.snappy,
             'output_buffer_timeout': self.output_buffer_timeout,
             'output_buffer_size': self.output_buffer_size,
-            'sample_rate': self.sample_rate
+            'sample_rate': self.sample_rate,
+
+            'authentication_password':self.authentication_password
         }
         self.trigger('identify', conn=self, data=identify_data)
         self.on('response', self._on_identify_response)

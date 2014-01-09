@@ -5,6 +5,7 @@ import functools
 import random
 
 import tornado.ioloop
+from tornado.ioloop import IOLoop
 
 from client import Client
 import nsq
@@ -76,6 +77,7 @@ class Writer(Client):
 
     :param **kwargs: passed to :class:`nsq.AsyncConn` initialization
     """
+
     def __init__(self, nsqd_tcp_addresses, **kwargs):
         if not isinstance(nsqd_tcp_addresses, (list, set, tuple)):
             assert isinstance(nsqd_tcp_addresses, (str, unicode))
@@ -85,8 +87,9 @@ class Writer(Client):
         self.nsqd_tcp_addresses = nsqd_tcp_addresses
         self.conns = {}
         self.conn_kwargs = kwargs
+        self.name = "pynsq"
 
-        self.ioloop.add_callback(self._run)
+        tornado.ioloop.IOLoop.instance().add_callback(self._run)
 
     def _run(self):
         logging.info('starting writer...')
